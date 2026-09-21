@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import StatsOverview from '@/components/StatsOverview';
 import LogsExplorer from '@/components/LogsExplorer';
 import UploadModal from '@/components/UploadModal';
 import { IngestionAuditSummary, SLAMetricsResponse } from '@/lib/types';
-import { RefreshCw, Database, Sparkles, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 export default function DashboardPage() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
