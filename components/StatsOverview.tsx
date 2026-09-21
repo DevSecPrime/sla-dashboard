@@ -9,9 +9,7 @@ import {
   AlertOctagon,
   Clock,
   Activity,
-  Zap,
   Server,
-  AlertCircle,
   BarChart3,
 } from 'lucide-react';
 import { SLAMetricsResponse } from '@/lib/types';
@@ -20,15 +18,31 @@ interface StatsOverviewProps {
   metrics: SLAMetricsResponse | null;
   selectedServiceId: string;
   onSelectService: (serviceId: string) => void;
+  isLoading?: boolean;
 }
 
 export default function StatsOverview({
   metrics,
   selectedServiceId,
   onSelectService,
+  isLoading = false,
 }: StatsOverviewProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showIncidentsModal, setShowIncidentsModal] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-8 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800 text-emerald-400">
+          <Activity className="h-6 w-6 animate-spin" />
+        </div>
+        <h3 className="mt-3 text-sm font-semibold text-zinc-200">Loading SLA Analytics...</h3>
+        <p className="mt-1 text-xs text-zinc-500">
+          Calculating multi-agent uptime, error budgets, and SLA compliance metrics.
+        </p>
+      </div>
+    );
+  }
 
   if (!metrics || metrics.total_checks === 0) {
     return (

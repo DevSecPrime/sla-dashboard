@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Navbar from '@/components/Navbar';
 import StatsOverview from '@/components/StatsOverview';
 import LogsExplorer from '@/components/LogsExplorer';
@@ -17,7 +17,7 @@ export default function DashboardPage() {
   const [activeDatasetName, setActiveDatasetName] = useState<string>('9d Seed 101');
   const [bannerNotice, setBannerNotice] = useState<string | null>(null);
 
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     try {
       setIsLoadingMetrics(true);
       const res = await fetch('/api/metrics');
@@ -30,9 +30,9 @@ export default function DashboardPage() {
     } finally {
       setIsLoadingMetrics(false);
     }
-  };
+  }, []);
 
-  const handleLoadSample = async (sampleId: string) => {
+  const handleLoadSample = useCallback(async (sampleId: string) => {
     try {
       setIsLoadingSample(true);
       const res = await fetch('/api/samples', {
@@ -52,7 +52,7 @@ export default function DashboardPage() {
     } finally {
       setIsLoadingSample(false);
     }
-  };
+  }, [fetchMetrics]);
 
   const handleUploadSuccess = async (audit: IngestionAuditSummary) => {
     setActiveDatasetName(audit.fileName.replace('.csv', ''));
@@ -85,7 +85,7 @@ export default function DashboardPage() {
     };
 
     init();
-  }, []);
+  }, [handleLoadSample]);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black">
@@ -122,6 +122,7 @@ export default function DashboardPage() {
             metrics={metrics}
             selectedServiceId={selectedServiceId}
             onSelectService={setSelectedServiceId}
+            isLoading={isLoadingMetrics}
           />
         </section>
 

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Search,
   Filter,
@@ -9,12 +9,11 @@ import {
   ChevronRight,
   CheckCircle,
   XCircle,
-  AlertTriangle,
   RotateCcw,
   Sparkles,
   Info,
-} from 'lucide-react';
-import { CleanCheckRecord, PaginatedLogsResponse, SLAMetricsResponse } from '@/lib/types';
+} from "lucide-react";
+import { PaginatedLogsResponse, SLAMetricsResponse } from "@/lib/types";
 
 interface LogsExplorerProps {
   metrics: SLAMetricsResponse | null;
@@ -36,71 +35,104 @@ export default function LogsExplorer({
   });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [dateFilterMode, setDateFilterMode] = useState<'ALL' | 'SINGLE' | 'RANGE'>('ALL');
-  const [selectedSingleDate, setSelectedSingleDate] = useState<string>('');
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'SUCCESS' | 'FAILED' | '5XX' | '999'>('ALL');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [dateFilterMode, setDateFilterMode] = useState<
+    "ALL" | "SINGLE" | "RANGE"
+  >("ALL");
+  const [selectedSingleDate, setSelectedSingleDate] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<
+    "ALL" | "SUCCESS" | "FAILED" | "5XX" | "999"
+  >("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
 
+  // Sync page reset when external service selection changes
+  const [prevServiceId, setPrevServiceId] = useState(selectedServiceId);
+  if (prevServiceId !== selectedServiceId) {
+    setPrevServiceId(selectedServiceId);
+    setPage(1);
+  }
+
   const availableDates = metrics?.date_range.available_dates || [];
 
-  const fetchLogs = async () => {
-    setIsLoading(true);
-    try {
-      const params = new URLSearchParams();
-      params.append('page', page.toString());
-      params.append('pageSize', pageSize.toString());
+  useEffect(() => {
+    let ignore = false;
+    const controller = new AbortController();
 
-      if (selectedServiceId && selectedServiceId !== 'ALL') {
-        params.append('serviceId', selectedServiceId);
-      }
+    async function getLogs() {
+      try {
+        const params = new URLSearchParams();
+        params.append("page", page.toString());
+        params.append("pageSize", pageSize.toString());
 
-      if (statusFilter !== 'ALL') {
-        params.append('statusFilter', statusFilter);
-      }
+        if (selectedServiceId && selectedServiceId !== "ALL") {
+          params.append("serviceId", selectedServiceId);
+        }
 
-      if (searchQuery.trim()) {
-        params.append('search', searchQuery.trim());
-      }
+        if (statusFilter !== "ALL") {
+          params.append("statusFilter", statusFilter);
+        }
 
-      if (dateFilterMode === 'SINGLE' && selectedSingleDate) {
-        params.append('date', selectedSingleDate);
-      } else if (dateFilterMode === 'RANGE') {
-        if (startDate) params.append('startDate', `${startDate}T00:00:00.000Z`);
-        if (endDate) params.append('endDate', `${endDate}T23:59:59.999Z`);
-      }
+        if (searchQuery.trim()) {
+          params.append("search", searchQuery.trim());
+        }
 
-      const res = await fetch(`/api/logs?${params.toString()}`);
-      if (res.ok) {
-        const data = await res.json();
-        setLogsData(data);
+        if (dateFilterMode === "SINGLE" && selectedSingleDate) {
+          params.append("date", selectedSingleDate);
+        } else if (dateFilterMode === "RANGE") {
+          if (startDate)
+            params.append("startDate", `${startDate}T00:00:00.000Z`);
+          if (endDate) params.append("endDate", `${endDate}T23:59:59.999Z`);
+        }
+
+        const res = await fetch(`/api/logs?${params.toString()}`, {
+          signal: controller.signal,
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (!ignore) {
+            setLogsData(data);
+          }
+        }
+      } catch (err: unknown) {
+        if (!ignore && (err as Error)?.name !== "AbortError") {
+          console.error("Failed to fetch logs:", err);
+        }
+      } finally {
+        if (!ignore) {
+          setIsLoading(false);
+        }
       }
-    } catch (err) {
-      console.error('Failed to fetch logs:', err);
-    } finally {
-      setIsLoading(false);
     }
-  };
 
-  useEffect(() => {
-    setPage(1);
-  }, [selectedServiceId, statusFilter, dateFilterMode, selectedSingleDate, startDate, endDate, searchQuery, pageSize]);
+    getLogs();
 
-  useEffect(() => {
-    fetchLogs();
-  }, [page, pageSize, selectedServiceId, statusFilter, dateFilterMode, selectedSingleDate, startDate, endDate, searchQuery]);
+    return () => {
+      ignore = true;
+      controller.abort();
+    };
+  }, [
+    page,
+    pageSize,
+    selectedServiceId,
+    statusFilter,
+    searchQuery,
+    dateFilterMode,
+    selectedSingleDate,
+    startDate,
+    endDate,
+  ]);
 
   const handleResetFilters = () => {
-    onSelectService('ALL');
-    setDateFilterMode('ALL');
-    setSelectedSingleDate('');
-    setStartDate('');
-    setEndDate('');
-    setStatusFilter('ALL');
-    setSearchQuery('');
+    onSelectService("ALL");
+    setDateFilterMode("ALL");
+    setSelectedSingleDate("");
+    setStartDate("");
+    setEndDate("");
+    setStatusFilter("ALL");
+    setSearchQuery("");
     setPage(1);
   };
 
@@ -114,9 +146,12 @@ export default function LogsExplorer({
               <Filter className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-white">Monitoring Health Checks Explorer</h2>
+              <h2 className="text-sm font-semibold text-white">
+                Monitoring Health Checks Explorer
+              </h2>
               <p className="text-xs text-zinc-400">
-                Inspect raw cleaned ping checks, response latencies, and anomaly correction tags
+                Inspect raw cleaned ping checks, response latencies, and anomaly
+                correction tags
               </p>
             </div>
           </div>
@@ -150,42 +185,42 @@ export default function LogsExplorer({
           {/* Date Filter Mode Selector */}
           <div className="flex items-center rounded-lg border border-zinc-800 bg-zinc-950/60 p-1 text-xs">
             <button
-              onClick={() => setDateFilterMode('ALL')}
+              onClick={() => setDateFilterMode("ALL")}
               className={`rounded-md px-2.5 py-1 transition font-medium ${
-                dateFilterMode === 'ALL'
-                  ? 'bg-zinc-800 text-white shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                dateFilterMode === "ALL"
+                  ? "bg-zinc-800 text-white shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
               All Dates
             </button>
             <button
               onClick={() => {
-                setDateFilterMode('SINGLE');
+                setDateFilterMode("SINGLE");
                 if (!selectedSingleDate && availableDates.length > 0) {
                   setSelectedSingleDate(availableDates[0]);
                 }
               }}
               className={`rounded-md px-2.5 py-1 transition font-medium ${
-                dateFilterMode === 'SINGLE'
-                  ? 'bg-zinc-800 text-white shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                dateFilterMode === "SINGLE"
+                  ? "bg-zinc-800 text-white shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
               Single Date
             </button>
             <button
               onClick={() => {
-                setDateFilterMode('RANGE');
+                setDateFilterMode("RANGE");
                 if (!startDate && availableDates.length > 0) {
                   setStartDate(availableDates[0]);
                   setEndDate(availableDates[availableDates.length - 1]);
                 }
               }}
               className={`rounded-md px-2.5 py-1 transition font-medium ${
-                dateFilterMode === 'RANGE'
-                  ? 'bg-zinc-800 text-white shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                dateFilterMode === "RANGE"
+                  ? "bg-zinc-800 text-white shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
               Date Range
@@ -193,7 +228,7 @@ export default function LogsExplorer({
           </div>
 
           {/* Single Date Picker / Chips */}
-          {dateFilterMode === 'SINGLE' && (
+          {dateFilterMode === "SINGLE" && (
             <div className="flex items-center space-x-2">
               <Calendar className="h-4 w-4 text-cyan-400" />
               <select
@@ -211,7 +246,7 @@ export default function LogsExplorer({
           )}
 
           {/* Date Range Inputs */}
-          {dateFilterMode === 'RANGE' && (
+          {dateFilterMode === "RANGE" && (
             <div className="flex items-center space-x-2 text-xs text-zinc-400">
               <span>From:</span>
               <input
@@ -234,14 +269,16 @@ export default function LogsExplorer({
 
           {/* Status Code Filters */}
           <div className="flex items-center space-x-1.5 text-xs">
-            <span className="text-zinc-500 text-[11px] font-medium mr-1">Status:</span>
+            <span className="text-zinc-500 text-[11px] font-medium mr-1">
+              Status:
+            </span>
             {(
               [
-                { id: 'ALL', label: 'All Status' },
-                { id: 'SUCCESS', label: '2xx OK' },
-                { id: 'FAILED', label: 'All Failures' },
-                { id: '5XX', label: '5xx Server' },
-                { id: '999', label: '999 Outage' },
+                { id: "ALL", label: "All Status" },
+                { id: "SUCCESS", label: "2xx OK" },
+                { id: "FAILED", label: "All Failures" },
+                { id: "5XX", label: "5xx Server" },
+                { id: "999", label: "999 Outage" },
               ] as const
             ).map((st) => (
               <button
@@ -249,8 +286,8 @@ export default function LogsExplorer({
                 onClick={() => setStatusFilter(st.id)}
                 className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${
                   statusFilter === st.id
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                    : 'bg-zinc-950/60 text-zinc-400 border border-zinc-800 hover:text-zinc-200'
+                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                    : "bg-zinc-950/60 text-zinc-400 border border-zinc-800 hover:text-zinc-200"
                 }`}
               >
                 {st.label}
@@ -276,7 +313,10 @@ export default function LogsExplorer({
           <tbody className="divide-y divide-zinc-800/60 font-mono">
             {isLoading ? (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-zinc-500">
+                <td
+                  colSpan={6}
+                  className="px-4 py-12 text-center text-zinc-500"
+                >
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
                     <span className="text-xs">Loading health checks...</span>
@@ -285,7 +325,10 @@ export default function LogsExplorer({
               </tr>
             ) : logsData.logs.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-zinc-500 font-sans">
+                <td
+                  colSpan={6}
+                  className="px-4 py-12 text-center text-zinc-500 font-sans"
+                >
                   <Info className="mx-auto h-6 w-6 text-zinc-600 mb-2" />
                   No monitoring records matched the selected criteria.
                 </td>
@@ -294,7 +337,6 @@ export default function LogsExplorer({
               logsData.logs.map((row, idx) => {
                 const isSuccess = row.is_success;
                 const is999 = row.status_code === 999;
-                const is5xx = row.status_code >= 500 && row.status_code < 600;
 
                 return (
                   <tr
@@ -303,7 +345,9 @@ export default function LogsExplorer({
                   >
                     {/* Timestamp */}
                     <td className="px-4 py-3 whitespace-nowrap text-zinc-300 font-mono text-[11px]">
-                      {new Date(row.timestamp).toISOString().replace('.000Z', 'Z')}
+                      {new Date(row.timestamp)
+                        .toISOString()
+                        .replace(".000Z", "Z")}
                     </td>
 
                     {/* Service */}
@@ -323,10 +367,10 @@ export default function LogsExplorer({
                       <span
                         className={`inline-flex items-center space-x-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
                           isSuccess
-                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                             : is999
-                            ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
-                            : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                              ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                              : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
                         }`}
                       >
                         {isSuccess ? (
@@ -349,10 +393,10 @@ export default function LogsExplorer({
                             <div
                               className={`h-full rounded-full ${
                                 row.latency_ms > 800
-                                  ? 'bg-rose-500'
+                                  ? "bg-rose-500"
                                   : row.latency_ms > 400
-                                  ? 'bg-amber-400'
-                                  : 'bg-emerald-400'
+                                    ? "bg-amber-400"
+                                    : "bg-emerald-400"
                               }`}
                               style={{
                                 width: `${Math.min(100, (row.latency_ms / 1000) * 100)}%`,
@@ -361,13 +405,17 @@ export default function LogsExplorer({
                           </div>
                         </div>
                       ) : (
-                        <span className="text-zinc-500 text-xs italic">null</span>
+                        <span className="text-zinc-500 text-xs italic">
+                          null
+                        </span>
                       )}
                     </td>
 
                     {/* Agent / Region */}
                     <td className="px-4 py-3 whitespace-nowrap text-zinc-400 text-xs">
-                      <span className="text-zinc-300 font-medium">{row.agent}</span>
+                      <span className="text-zinc-300 font-medium">
+                        {row.agent}
+                      </span>
                       <span className="text-zinc-600 mx-1.5">•</span>
                       <span className="text-zinc-400">{row.region}</span>
                     </td>
@@ -382,11 +430,13 @@ export default function LogsExplorer({
                               className="inline-flex items-center space-x-1 rounded bg-zinc-800/80 border border-zinc-700/60 px-1.5 py-0.5 text-[10px] font-mono text-cyan-300"
                             >
                               <Sparkles className="h-2.5 w-2.5 text-cyan-400" />
-                              <span>{flag.replace(/_/g, ' ')}</span>
+                              <span>{flag.replace(/_/g, " ")}</span>
                             </span>
                           ))
                         ) : (
-                          <span className="text-[11px] text-zinc-600 font-sans">Clean</span>
+                          <span className="text-[11px] text-zinc-600 font-sans">
+                            Clean
+                          </span>
                         )}
                       </div>
                     </td>
@@ -402,8 +452,15 @@ export default function LogsExplorer({
       <div className="flex flex-col sm:flex-row items-center justify-between border-t border-zinc-800/80 px-5 py-3 text-xs text-zinc-400 gap-3">
         <div className="flex items-center space-x-3">
           <span>
-            Showing <span className="text-zinc-200 font-semibold">{logsData.logs.length}</span> of{' '}
-            <span className="text-zinc-200 font-semibold">{logsData.total.toLocaleString()}</span> checks
+            Showing{" "}
+            <span className="text-zinc-200 font-semibold">
+              {logsData.logs.length}
+            </span>{" "}
+            of{" "}
+            <span className="text-zinc-200 font-semibold">
+              {logsData.total.toLocaleString()}
+            </span>{" "}
+            checks
           </span>
 
           <div className="flex items-center space-x-1.5">
