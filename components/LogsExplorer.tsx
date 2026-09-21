@@ -235,16 +235,18 @@ export default function LogsExplorer({
           {/* Status Code Filters */}
           <div className="flex items-center space-x-1.5 text-xs">
             <span className="text-zinc-500 text-[11px] font-medium mr-1">Status:</span>
-            {[
-              { id: 'ALL', label: 'All Status' },
-              { id: 'SUCCESS', label: '2xx OK' },
-              { id: 'FAILED', label: 'All Failures' },
-              { id: '5XX', label: '5xx Server' },
-              { id: '999', label: '999 Outage' },
-            ].map((st) => (
+            {(
+              [
+                { id: 'ALL', label: 'All Status' },
+                { id: 'SUCCESS', label: '2xx OK' },
+                { id: 'FAILED', label: 'All Failures' },
+                { id: '5XX', label: '5xx Server' },
+                { id: '999', label: '999 Outage' },
+              ] as const
+            ).map((st) => (
               <button
                 key={st.id}
-                onClick={() => setStatusFilter(st.id as any)}
+                onClick={() => setStatusFilter(st.id)}
                 className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${
                   statusFilter === st.id
                     ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'

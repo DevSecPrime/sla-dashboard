@@ -2,8 +2,40 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
-import { CleanCheckRecord, IngestionAuditSummary, LogFilterParams, PaginatedLogsResponse, SLAMetricsResponse } from './types';
-import { calculateSLAMetrics } from './metrics';
+import { CleanCheckRecord, IngestionAuditSummary, LogFilterParams, PaginatedLogsResponse } from './types';
+
+interface SqliteMonitoringCheckRow {
+  id: number;
+  service_id: string;
+  service_name: string;
+  timestamp: string;
+  status_code: number;
+  is_success: number;
+  latency_ms: number | null;
+  raw_latency: string;
+  latency_unit: string;
+  agent: string;
+  region: string;
+  quality_flags: string | null;
+  created_at?: string;
+}
+
+interface SqliteCountRow {
+  count: number;
+}
+
+interface SqliteUploadSessionRow {
+  id: number;
+  file_name: string;
+  total_rows: number;
+  clean_rows: number;
+  duplicates_skipped: number;
+  anomalies_fixed: number;
+  date_range_start: string | null;
+  date_range_end: string | null;
+  quality_breakdown: string | null;
+  created_at?: string;
+}
 
 // Determine if Supabase is configured
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -261,7 +293,7 @@ export async function getRecordsForMetrics(params?: {
   // SQLite Fallback
   const db = getSqliteDb();
   let sql = 'SELECT * FROM monitoring_checks WHERE 1=1';
-  const queryParams: any = {};
+  const queryParams: Record<string, string | number> = {};
 
   if (params?.startDate) {
     sql += ' AND timestamp >= @startDate';
@@ -278,7 +310,7 @@ export async function getRecordsForMetrics(params?: {
 
   sql += ' ORDER BY timestamp ASC';
   const stmt = db.prepare(sql);
-  const rows = stmt.all(queryParams) as any[];
+  const rows = stmt.all(queryParams) as SqliteMonitoringCheckRow[];
 
   return rows.map(r => ({
     id: r.id,
@@ -368,8 +400,8 @@ export async function getPaginatedLogs(params: LogFilterParams): Promise<Paginat
 
   // SQLite fallback
   const db = getSqliteDb();
-  let whereClauses: string[] = ['1=1'];
-  const queryParams: any = {};
+  const whereClauses: string[] = ['1=1'];
+  const queryParams: Record<string, string | number> = {};
 
   if (params.date) {
     whereClauses.push("timestamp >= @dateStart AND timestamp <= @dateEnd");
@@ -409,7 +441,8 @@ export async function getPaginatedLogs(params: LogFilterParams): Promise<Paginat
   const whereSql = whereClauses.join(' AND ');
 
   const countStmt = db.prepare(`SELECT COUNT(*) as count FROM monitoring_checks WHERE ${whereSql}`);
-  const total = (countStmt.get(queryParams) as any)?.count || 0;
+  const countRow = countStmt.get(queryParams) as SqliteCountRow | undefined;
+  const total = countRow?.count || 0;
 
   const dataStmt = db.prepare(`
     SELECT * FROM monitoring_checks
@@ -418,7 +451,7 @@ export async function getPaginatedLogs(params: LogFilterParams): Promise<Paginat
     LIMIT @pageSize OFFSET @offset
   `);
 
-  const rows = dataStmt.all({ ...queryParams, pageSize, offset }) as any[];
+  const rows = dataStmt.all({ ...queryParams, pageSize, offset }) as SqliteMonitoringCheckRow[];
 
   const logs: CleanCheckRecord[] = rows.map(r => ({
     id: r.id,
@@ -476,7 +509,7 @@ export async function getLatestUploadAudit(): Promise<IngestionAuditSummary | nu
   }
 
   const db = getSqliteDb();
-  const row = db.prepare('SELECT * FROM upload_sessions ORDER BY created_at DESC LIMIT 1').get() as any;
+  const row = db.prepare('SELECT * FROM upload_sessions ORDER BY created_at DESC LIMIT 1').get() as SqliteUploadSessionRow | undefined;
   if (!row) return null;
 
   return {

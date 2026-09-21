@@ -90,8 +90,9 @@ export default function UploadModal({ isOpen, onClose, onUploadSuccess }: Upload
 
       setAuditResult(data.auditSummary);
       onUploadSuccess(data.auditSummary);
-    } catch (err: any) {
-      setErrorMsg(err.message || 'An error occurred during upload.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An error occurred during upload.';
+      setErrorMsg(message);
     } finally {
       setIsUploading(false);
     }
