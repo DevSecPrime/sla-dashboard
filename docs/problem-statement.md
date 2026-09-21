@@ -8,7 +8,7 @@
 
 ## Background
 
-Cloud providers offer SLAs: *"If a service's monthly availability drops below 99.9%, the customer gets a billing credit."* The credit is computed automatically from monitoring data — nobody manually reviews it, the data itself decides the outcome.
+Cloud providers offer SLAs: _"If a service's monthly availability drops below 99.9%, the customer gets a billing credit."_ The credit is computed automatically from monitoring data — nobody manually reviews it, the data itself decides the outcome.
 
 That means the pipeline that turns raw logs into numbers has to be trustworthy, and someone (an engineer, a support team) needs a place to actually look at what happened. That's what you're building.
 
@@ -27,14 +27,14 @@ This is the part we care about most — not just "does it compute the right numb
 3. **Persistence** — cleaned data is saved to a database of your choice (Postgres, DynamoDB, Firestore, SQLite — your call), from which it can be queried later. Don't just hold it in memory; it has to be re-queryable after the upload finishes.
 4. **A single-screen dashboard UI** with two sections on one page:
    - **Top: a stats section that can be collapsed/expanded.** You decide what stats matter for this use case (this is a real design decision, not a checklist — think about what someone on-call or in billing would actually want to see).
-   - **Below: a logs view**, filterable by a single date *or* a date range, showing the underlying check records.
+   - **Below: a logs view**, filterable by a single date _or_ a date range, showing the underlying check records.
 
 ## Constraints & rules
 
 - **Use only free-tier / no-cost resources.** Nothing that requires a paid plan or credit card commitment beyond a provider's free tier.
 - **You must deploy and host this for real** — the upload UI, the cloud function, the database, and the dashboard all need to be reachable at live URLs, not run on your own machine. Share the working link alongside your GitHub repo. If it can't stay up indefinitely on a free tier, tell us in the README when it was last verified live and how to redeploy it on demand — but it needs to actually be live at review time.
 - **Do NOT build:** authentication/user accounts, multi-tenant support, CI pipelines. Explicitly out of scope.
-- **AI tools (Copilot, Claude, ChatGPT, etc.) are allowed.** We use them too. But you must be able to explain and defend every line in a follow-up discussion, and your README's assumptions/decisions must reflect *your* thinking. Working code that can't be explained is treated as a failure.
+- **AI tools (Copilot, Claude, ChatGPT, etc.) are allowed.** We use them too. But you must be able to explain and defend every line in a follow-up discussion, and your README's assumptions/decisions must reflect _your_ thinking. Working code that can't be explained is treated as a failure.
 - Commit as you go. We read commit history.
 
 ## Your README must include

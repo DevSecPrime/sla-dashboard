@@ -29,11 +29,11 @@ for (const file of files) {
   console.log(`📁 File: ${file}`);
   console.log(`   - Raw rows: ${auditSummary.totalRowsRead.toLocaleString()}`);
   console.log(`   - Clean rows: ${auditSummary.cleanRowsImported.toLocaleString()}`);
-  console.log(`   - Duplicates dropped: ${auditSummary.duplicatesSkipped}`);
+  console.log(`   - Duplicates skipped/dropped: ${auditSummary.duplicatesSkipped}`);
   console.log(`   - Anomalies fixed: ${auditSummary.anomaliesFixed}`);
   console.log(`   - Processing time: ${elapsed}ms`);
   console.log(`   - Overall SLA Uptime: ${metrics.overall_uptime_percentage}% (Target: 99.9%)`);
-  console.log(`   - Overall SLA Met: ${metrics.is_overall_sla_met ? '✅ YES' : '❌ NO'}`);
+  console.log(`   - Overall SLA Met: ${metrics.is_overall_sla_met ? 'YES' : 'NO'}`);
   console.log(`   - Billing Credit: ${metrics.billing_credit_percentage}%`);
   console.log(`   - Outage Incidents Detected: ${metrics.incidents.length}`);
   for (const inc of metrics.incidents) {

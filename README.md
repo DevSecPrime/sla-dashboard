@@ -38,13 +38,13 @@ flowchart TD
 
 ### Technology Stack & Rationale
 
-| Component | Technology | Rationale |
-| :--- | :--- | :--- |
-| **Frontend Framework** | **Next.js (App Router) + React** | Offers instant server-rendered performance, optimized routing, and colocation with serverless functions. |
-| **Styling & UI** | **Tailwind CSS + Lucide Icons** | Enables custom dark-mode aesthetics, smooth collapsible transitions, responsive mobile-friendly layouts, and glowing status indicators without bloat. |
-| **Stateless Cloud Function** | **Next.js API Routes (Vercel Serverless)** | Satisfies the requirement for a real, deployed stateless cloud function. Handles stream parsing, multi-pass cleaning, and batch persistence in under 20ms per dataset. |
-| **Persistent Database** | **PostgreSQL (Supabase) + Local SQLite Fallback** | Free-tier managed PostgreSQL with indexed timestamps and composite keys `(service_id, timestamp)`. Includes automatic zero-config local fallback for offline development. |
-| **CSV Streaming & Parsing** | **PapaParse** | Memory-efficient streaming parser that safely ingests tens of thousands of rows without memory spikes. |
+| Component                    | Technology                                        | Rationale                                                                                                                                                                 |
+| :--------------------------- | :------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Frontend Framework**       | **Next.js (App Router) + React**                  | Offers instant server-rendered performance, optimized routing, and colocation with serverless functions.                                                                  |
+| **Styling & UI**             | **Tailwind CSS + Lucide Icons**                   | Enables custom dark-mode aesthetics, smooth collapsible transitions, responsive mobile-friendly layouts, and glowing status indicators without bloat.                     |
+| **Stateless Cloud Function** | **Next.js API Routes (Vercel Serverless)**        | Satisfies the requirement for a real, deployed stateless cloud function. Handles stream parsing, multi-pass cleaning, and batch persistence in under 20ms per dataset.    |
+| **Persistent Database**      | **PostgreSQL (Supabase) + Local SQLite Fallback** | Free-tier managed PostgreSQL with indexed timestamps and composite keys `(service_id, timestamp)`. Includes automatic zero-config local fallback for offline development. |
+| **CSV Streaming & Parsing**  | **PapaParse**                                     | Memory-efficient streaming parser that safely ingests tens of thousands of rows without memory spikes.                                                                    |
 
 ---
 
@@ -52,14 +52,14 @@ flowchart TD
 
 During multi-agent log analysis, the raw data exhibited 6 distinct classes of data corruption and irregularity:
 
-| Issue | Discovered Anomaly | Root Cause | Handling Strategy & Remediation |
-| :--- | :--- | :--- | :--- |
-| **1. Timestamp Inconsistencies** | `1746938700` (Unix Epoch)<br>`2025-05-13T02:00:00+05:30` (Timezone Offset)<br>`2025-05-13T12:45:00Z` (UTC ISO) | Monitoring agents running different OS clocks and localized timezone configurations. | Normalized every timestamp to standard ISO-8601 UTC (`YYYY-MM-DDTHH:mm:ss.000Z`) prior to sorting or deduplication. Tagged with `EPOCH_TIMESTAMP_CONVERTED` and `TIMEZONE_OFFSET_NORMALIZED`. |
-| **2. Mixed Latency Units** | `0.731` with `unit: 's'` vs `707` with `unit: 'ms'` | Agents reporting latencies in floating-point seconds instead of integer milliseconds. | Converted all seconds to milliseconds (`latencyMs = Math.round(floatVal * 1000 * 100) / 100`). Tagged with `SECONDS_TO_MS_CONVERTED`. |
-| **3. Negative Latencies** | `latency: -286` | Clock skew or corrupted network probe response calculations on edge agents. | Sanitized negative numbers to `null` to avoid skewing average/p95/p99 latency calculations. Tagged with `NEGATIVE_LATENCY_SANITIZED`. |
-| **4. Missing Latency Fields** | `200,,ms` | Network drops where the agent logged HTTP status but timed out reading full body metrics. | Imputed to `null` and flagged with `EMPTY_LATENCY_IMPUTED`. |
-| **5. Non-Standard Status 999** | `status_code: 999` | Monitoring probe network failure / connection timeout. | Explicitly treated as a **FAILED / OUTAGE** check (`is_success = false`). Tagged with `STATUS_999_MARKED_OUTAGE`. |
-| **6. Duplicate Agent Checkpoints** | `agent-1` and `agent-2` both pinging the same service at the exact same 15-minute checkpoint. (e.g. **352 duplicates in the 9-day log alone**). | Multi-region overlapping agent probes. | Deduplicated via composite key `(service_id, normalized_utc_timestamp)`. Merged data to preserve the most complete metric entry. |
+| Issue                              | Discovered Anomaly                                                                                                                              | Root Cause                                                                                | Handling Strategy & Remediation                                                                                                                                                               |
+| :--------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1. Timestamp Inconsistencies**   | `1746938700` (Unix Epoch)<br>`2025-05-13T02:00:00+05:30` (Timezone Offset)<br>`2025-05-13T12:45:00Z` (UTC ISO)                                  | Monitoring agents running different OS clocks and localized timezone configurations.      | Normalized every timestamp to standard ISO-8601 UTC (`YYYY-MM-DDTHH:mm:ss.000Z`) prior to sorting or deduplication. Tagged with `EPOCH_TIMESTAMP_CONVERTED` and `TIMEZONE_OFFSET_NORMALIZED`. |
+| **2. Mixed Latency Units**         | `0.731` with `unit: 's'` vs `707` with `unit: 'ms'`                                                                                             | Agents reporting latencies in floating-point seconds instead of integer milliseconds.     | Converted all seconds to milliseconds (`latencyMs = Math.round(floatVal * 1000 * 100) / 100`). Tagged with `SECONDS_TO_MS_CONVERTED`.                                                         |
+| **3. Negative Latencies**          | `latency: -286`                                                                                                                                 | Clock skew or corrupted network probe response calculations on edge agents.               | Sanitized negative numbers to `null` to avoid skewing average/p95/p99 latency calculations. Tagged with `NEGATIVE_LATENCY_SANITIZED`.                                                         |
+| **4. Missing Latency Fields**      | `200,,ms`                                                                                                                                       | Network drops where the agent logged HTTP status but timed out reading full body metrics. | Imputed to `null` and flagged with `EMPTY_LATENCY_IMPUTED`.                                                                                                                                   |
+| **5. Non-Standard Status 999**     | `status_code: 999`                                                                                                                              | Monitoring probe network failure / connection timeout.                                    | Explicitly treated as a **FAILED / OUTAGE** check (`is_success = false`). Tagged with `STATUS_999_MARKED_OUTAGE`.                                                                             |
+| **6. Duplicate Agent Checkpoints** | `agent-1` and `agent-2` both pinging the same service at the exact same 15-minute checkpoint. (e.g. **352 duplicates in the 9-day log alone**). | Multi-region overlapping agent probes.                                                    | Deduplicated via composite key `(service_id, normalized_utc_timestamp)`. Merged data to preserve the most complete metric entry.                                                              |
 
 ---
 
@@ -88,9 +88,11 @@ During multi-agent log analysis, the raw data exhibited 6 distinct classes of da
 ## 4. Local Development & Deployment Guide
 
 ### Prerequisites
+
 - Node.js 18+ and npm
 
 ### Local Setup
+
 ```bash
 # 1. Clone the repository
 git clone <your-repo-url>
@@ -112,11 +114,13 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
 
 ### Supabase Cloud Setup (Optional for Free-Tier Cloud Persistence)
+
 1. Create a free project at [supabase.com](https://supabase.com).
 2. Open the **SQL Editor** in Supabase and run the script located at `scripts/schema.sql`.
 3. Add your Supabase project URL and keys to `.env.local` or your Vercel Environment Variables.
 
 ### Live Deployment to Vercel (100% Free Tier)
+
 1. Push your repository to GitHub.
 2. Import the repository into [Vercel](https://vercel.com).
 3. (Optional) Add your Supabase environment variables in Vercel project settings.
