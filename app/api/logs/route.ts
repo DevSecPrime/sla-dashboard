@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       startDate: searchParams.get('startDate') || undefined,
       endDate: searchParams.get('endDate') || undefined,
       serviceId: searchParams.get('serviceId') || undefined,
-      statusFilter: (searchParams.get('statusFilter') as any) || 'ALL',
+      statusFilter: (searchParams.get('statusFilter') as LogFilterParams['statusFilter']) || 'ALL',
       search: searchParams.get('search') || undefined,
       page: parseInt(searchParams.get('page') || '1', 10),
       pageSize: parseInt(searchParams.get('pageSize') || '25', 10),
@@ -21,10 +21,11 @@ export async function GET(req: NextRequest) {
 
     const result = await getPaginatedLogs(params);
     return NextResponse.json(result);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Logs API error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to fetch logs';
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch logs' },
+      { error: message },
       { status: 500 }
     );
   }

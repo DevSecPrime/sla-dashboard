@@ -54,10 +54,11 @@ export async function POST(req: NextRequest) {
         insertedCount: saveResult.insertedCount,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Upload handler error:', error);
+    const message = error instanceof Error ? error.message : 'Internal server error processing CSV upload';
     return NextResponse.json(
-      { error: error.message || 'Internal server error processing CSV upload' },
+      { error: message },
       { status: 500 }
     );
   }

@@ -58,10 +58,11 @@ export async function POST(req: NextRequest) {
         insertedCount: saveResult.insertedCount,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Sample loader error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to load sample dataset';
     return NextResponse.json(
-      { error: error.message || 'Failed to load sample dataset' },
+      { error: message },
       { status: 500 }
     );
   }

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLatestUploadAudit, getRecordsForMetrics } from '@/lib/db';
 import { calculateSLAMetrics } from '@/lib/metrics';
-
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
@@ -22,10 +21,11 @@ export async function GET(req: NextRequest) {
     metrics.audit_summary = latestAudit;
 
     return NextResponse.json(metrics);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Metrics API error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to fetch SLA metrics';
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch SLA metrics' },
+      { error: message },
       { status: 500 }
     );
   }
