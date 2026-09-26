@@ -29,43 +29,51 @@ export default function Navbar({
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+    <header className="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 gap-2">
         {/* Brand / Logo */}
-        <div className="flex items-center space-x-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/20">
-            <ShieldAlert className="h-5 w-5 text-zinc-950" />
+        <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+          <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 shadow-md shadow-emerald-500/20">
+            <ShieldAlert className="h-4 w-4 sm:h-5 sm:w-5 text-zinc-950" />
           </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <h1 className="text-lg font-bold tracking-tight text-white">SLA Sentinel</h1>
-              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-400">
+          <div className="min-w-0">
+            <div className="flex items-center space-x-1.5 sm:space-x-2">
+              <h1 className="text-sm sm:text-base md:text-lg font-bold tracking-tight text-white truncate">
+                SLA Sentinel
+              </h1>
+              <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold text-emerald-400">
                 SLA 99.9%
               </span>
             </div>
-            <p className="text-xs text-zinc-400">Stateless Cloud Pipeline & Reliability Monitoring</p>
+            <p className="text-[11px] sm:text-xs text-zinc-400 hidden xs:block truncate">
+              Stateless Cloud Pipeline & Reliability Monitoring
+            </p>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
           {/* Quick Dataset Selector Dropdown */}
           <div className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
               disabled={isLoadingSample}
-              className="flex items-center space-x-2 rounded-lg border border-zinc-700 bg-zinc-900/90 px-3.5 py-2 text-xs font-medium text-zinc-200 transition hover:border-zinc-600 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 disabled:opacity-50"
+              aria-label="Select test dataset"
+              className="flex items-center space-x-1.5 sm:space-x-2 rounded-lg border border-zinc-700/80 bg-zinc-900/90 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-medium text-zinc-200 transition hover:border-zinc-600 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 disabled:opacity-50"
             >
               {isLoadingSample ? (
-                <RefreshCw className="h-4 w-4 animate-spin text-emerald-400" />
+                <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin text-emerald-400" />
               ) : (
-                <Sparkles className="h-4 w-4 text-emerald-400" />
+                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-400" />
               )}
-              <span className="hidden sm:inline">
-                {activeDatasetName ? `Dataset: ${activeDatasetName}` : 'Load Test Dataset'}
+              <span className="hidden md:inline max-w-[140px] truncate">
+                {activeDatasetName ? `Dataset: ${activeDatasetName}` : 'Load Test Data'}
               </span>
-              <span className="sm:hidden">Datasets</span>
-              <ChevronDown className={`h-3.5 w-3.5 text-zinc-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+              <span className="hidden sm:inline md:hidden">
+                {activeDatasetName ? activeDatasetName : 'Datasets'}
+              </span>
+              <span className="sm:hidden text-[11px]">Datasets</span>
+              <ChevronDown className={`h-3 w-3 sm:h-3.5 sm:w-3.5 text-zinc-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {dropdownOpen && (
@@ -74,7 +82,7 @@ export default function Navbar({
                   className="fixed inset-0 z-40"
                   onClick={() => setDropdownOpen(false)}
                 />
-                <div className="absolute right-0 mt-2 z-50 w-72 origin-top-right rounded-xl border border-zinc-800 bg-zinc-900 p-2 shadow-2xl shadow-black/80 ring-1 ring-white/10">
+                <div className="absolute right-0 mt-2 z-50 w-72 max-w-[calc(100vw-1.5rem)] origin-top-right rounded-xl border border-zinc-800 bg-zinc-900 p-2 shadow-2xl shadow-black/80 ring-1 ring-white/10">
                   <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-400 border-b border-zinc-800/80">
                     Sample Incident Logs
                   </div>
@@ -88,14 +96,14 @@ export default function Navbar({
                         }}
                         className="flex w-full items-start justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-zinc-800 focus:bg-zinc-800"
                       >
-                        <div>
+                        <div className="min-w-0 pr-2">
                           <div className="font-semibold text-zinc-200">{sample.days} Dataset</div>
-                          <div className="text-[11px] text-zinc-400 truncate max-w-[190px]">
+                          <div className="text-[11px] text-zinc-400 truncate">
                             Incidents: {sample.incidents}
                           </div>
                         </div>
-                        {activeDatasetName?.includes(sample.id) && (
-                          <Check className="h-4 w-4 text-emerald-400 mt-0.5" />
+                        {activeDatasetName?.toLowerCase().includes(sample.id) && (
+                          <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
                         )}
                       </button>
                     ))}
@@ -107,17 +115,19 @@ export default function Navbar({
 
           {/* Database Indicator Pill */}
           <div className="hidden lg:flex items-center space-x-1.5 rounded-lg border border-zinc-800 bg-zinc-900/60 px-3 py-2 text-xs text-zinc-400">
-            <Database className="h-3.5 w-3.5 text-cyan-400" />
+            <Database className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
             <span>{isCloudDb ? 'PostgreSQL (Supabase)' : 'Local SQLite DB'}</span>
           </div>
 
           {/* Upload Button */}
           <button
             onClick={onOpenUpload}
-            className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2 text-xs font-semibold text-zinc-950 shadow-md shadow-emerald-500/20 transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            aria-label="Upload CSV File"
+            className="flex items-center space-x-1.5 sm:space-x-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold text-zinc-950 shadow-md shadow-emerald-500/20 transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-emerald-400 shrink-0"
           >
-            <Upload className="h-4 w-4" />
-            <span>Upload CSV</span>
+            <Upload className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden xs:inline">Upload CSV</span>
+            <span className="xs:hidden">Upload</span>
           </button>
         </div>
       </div>
