@@ -99,17 +99,18 @@ export default function DashboardPage() {
       />
 
       {/* Main Single-Screen Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Banner notification if dataset changed */}
         {bannerNotice && (
-          <div className="flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-950/20 px-4 py-2.5 text-xs text-emerald-300 animate-in fade-in duration-300">
-            <div className="flex items-center space-x-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              <span>{bannerNotice}</span>
+          <div className="flex items-start sm:items-center justify-between gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-950/20 px-3.5 sm:px-4 py-2.5 text-xs text-emerald-300 animate-in fade-in duration-300">
+            <div className="flex items-center space-x-2 min-w-0">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span className="truncate sm:whitespace-normal">{bannerNotice}</span>
             </div>
             <button
               onClick={() => setBannerNotice(null)}
-              className="text-emerald-400/80 hover:text-emerald-200"
+              aria-label="Dismiss banner"
+              className="text-emerald-400/80 hover:text-emerald-200 p-0.5 shrink-0"
             >
               ✕
             </button>
@@ -145,9 +146,9 @@ export default function DashboardPage() {
 
       {/* Footer */}
       <footer className="border-t border-zinc-900 bg-zinc-950 py-4 text-center text-xs text-zinc-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>SLA Monitoring Dashboard • Production-Grade Serverless Pipeline</span>
-          <span className="font-mono text-[11px] text-zinc-600">
+          <span className="font-mono text-[10px] sm:text-[11px] text-zinc-600">
             Next.js App Router • Tailwind CSS • PostgreSQL / Supabase
           </span>
         </div>

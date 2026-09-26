@@ -139,54 +139,54 @@ export default function LogsExplorer({
   return (
     <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/60 shadow-xl backdrop-blur-md overflow-hidden">
       {/* Controls / Filter Header */}
-      <div className="border-b border-zinc-800/80 p-5 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center space-x-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
+      <div className="border-b border-zinc-800/80 p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
               <Filter className="h-4 w-4" />
             </div>
-            <div>
-              <h2 className="text-sm font-semibold text-white">
+            <div className="min-w-0">
+              <h2 className="text-sm font-semibold text-white truncate">
                 Monitoring Health Checks Explorer
               </h2>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-zinc-400 hidden xs:block truncate">
                 Inspect raw cleaned ping checks, response latencies, and anomaly
                 correction tags
               </p>
             </div>
           </div>
 
-          {/* Search Box */}
-          <div className="flex items-center space-x-3">
-            <div className="relative w-full md:w-64">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+          {/* Search Box & Reset */}
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="relative flex-1 md:w-64">
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-zinc-500" />
               <input
                 type="text"
                 placeholder="Search agent, service..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-950/80 pl-9 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-zinc-700/80 bg-zinc-950/80 pl-8.5 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
 
             <button
               onClick={handleResetFilters}
               title="Reset Filters"
-              className="flex items-center space-x-1 rounded-lg border border-zinc-700 bg-zinc-800/60 px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white transition"
+              className="flex items-center justify-center space-x-1 rounded-lg border border-zinc-700 bg-zinc-800/60 px-2.5 sm:px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white transition shrink-0"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Reset</span>
+              <span className="hidden xs:inline">Reset</span>
             </button>
           </div>
         </div>
 
         {/* Filter Badges Bar */}
-        <div className="flex flex-wrap items-center gap-3 pt-2">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-1">
           {/* Date Filter Mode Selector */}
           <div className="flex items-center rounded-lg border border-zinc-800 bg-zinc-950/60 p-1 text-xs">
             <button
               onClick={() => setDateFilterMode("ALL")}
-              className={`rounded-md px-2.5 py-1 transition font-medium ${
+              className={`rounded-md px-2 sm:px-2.5 py-1 transition font-medium text-[11px] sm:text-xs ${
                 dateFilterMode === "ALL"
                   ? "bg-zinc-800 text-white shadow-sm"
                   : "text-zinc-400 hover:text-zinc-200"
@@ -201,7 +201,7 @@ export default function LogsExplorer({
                   setSelectedSingleDate(availableDates[0]);
                 }
               }}
-              className={`rounded-md px-2.5 py-1 transition font-medium ${
+              className={`rounded-md px-2 sm:px-2.5 py-1 transition font-medium text-[11px] sm:text-xs ${
                 dateFilterMode === "SINGLE"
                   ? "bg-zinc-800 text-white shadow-sm"
                   : "text-zinc-400 hover:text-zinc-200"
@@ -217,7 +217,7 @@ export default function LogsExplorer({
                   setEndDate(availableDates[availableDates.length - 1]);
                 }
               }}
-              className={`rounded-md px-2.5 py-1 transition font-medium ${
+              className={`rounded-md px-2 sm:px-2.5 py-1 transition font-medium text-[11px] sm:text-xs ${
                 dateFilterMode === "RANGE"
                   ? "bg-zinc-800 text-white shadow-sm"
                   : "text-zinc-400 hover:text-zinc-200"
@@ -227,17 +227,17 @@ export default function LogsExplorer({
             </button>
           </div>
 
-          {/* Single Date Picker / Chips */}
+          {/* Single Date Picker */}
           {dateFilterMode === "SINGLE" && (
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4 text-cyan-400" />
+            <div className="flex items-center space-x-1.5 rounded-lg border border-zinc-700/80 bg-zinc-950 px-2.5 py-1 text-xs">
+              <Calendar className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
               <select
                 value={selectedSingleDate}
                 onChange={(e) => setSelectedSingleDate(e.target.value)}
-                className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-1 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500"
+                className="bg-transparent text-xs text-zinc-200 focus:outline-none cursor-pointer"
               >
                 {availableDates.map((d) => (
-                  <option key={d} value={d}>
+                  <option key={d} value={d} className="bg-zinc-900 text-zinc-100">
                     {d}
                   </option>
                 ))}
@@ -247,44 +247,48 @@ export default function LogsExplorer({
 
           {/* Date Range Inputs */}
           {dateFilterMode === "RANGE" && (
-            <div className="flex items-center space-x-2 text-xs text-zinc-400">
-              <span>From:</span>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="rounded-lg border border-zinc-700 bg-zinc-950 px-2.5 py-1 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500"
-              />
-              <span>To:</span>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="rounded-lg border border-zinc-700 bg-zinc-950 px-2.5 py-1 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500"
-              />
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-zinc-400">
+              <div className="flex items-center space-x-1">
+                <span className="text-[11px] text-zinc-500">From:</span>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-0.5 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+              <div className="flex items-center space-x-1">
+                <span className="text-[11px] text-zinc-500">To:</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-0.5 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
             </div>
           )}
 
-          <div className="h-4 w-[1px] bg-zinc-800 hidden sm:block" />
+          <div className="h-4 w-[1px] bg-zinc-800 hidden md:block" />
 
           {/* Status Code Filters */}
-          <div className="flex items-center space-x-1.5 text-xs">
-            <span className="text-zinc-500 text-[11px] font-medium mr-1">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+            <span className="text-zinc-500 text-[11px] font-medium mr-0.5 hidden xs:inline">
               Status:
             </span>
             {(
               [
-                { id: "ALL", label: "All Status" },
+                { id: "ALL", label: "All" },
                 { id: "SUCCESS", label: "2xx OK" },
-                { id: "FAILED", label: "All Failures" },
-                { id: "5XX", label: "5xx Server" },
+                { id: "FAILED", label: "Failures" },
+                { id: "5XX", label: "5xx" },
                 { id: "999", label: "999 Outage" },
               ] as const
             ).map((st) => (
               <button
                 key={st.id}
                 onClick={() => setStatusFilter(st.id)}
-                className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${
+                className={`rounded-lg px-2 sm:px-2.5 py-1 text-[11px] font-medium transition shrink-0 ${
                   statusFilter === st.id
                     ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
                     : "bg-zinc-950/60 text-zinc-400 border border-zinc-800 hover:text-zinc-200"
@@ -298,16 +302,16 @@ export default function LogsExplorer({
       </div>
 
       {/* Table Section */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs border-collapse">
+      <div className="overflow-x-auto w-full">
+        <table className="w-full text-left text-xs border-collapse min-w-[640px]">
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-950/80 text-zinc-400 uppercase tracking-wider font-semibold text-[10px]">
-              <th className="px-4 py-3">Timestamp (UTC)</th>
-              <th className="px-4 py-3">Service</th>
-              <th className="px-4 py-3">Status Code</th>
-              <th className="px-4 py-3">Latency (ms)</th>
-              <th className="px-4 py-3">Agent / Region</th>
-              <th className="px-4 py-3">Data Cleansing Tags</th>
+              <th className="px-3.5 sm:px-4 py-3">Timestamp (UTC)</th>
+              <th className="px-3.5 sm:px-4 py-3">Service</th>
+              <th className="px-3.5 sm:px-4 py-3">Status</th>
+              <th className="px-3.5 sm:px-4 py-3">Latency</th>
+              <th className="px-3.5 sm:px-4 py-3">Agent / Region</th>
+              <th className="px-3.5 sm:px-4 py-3">Cleansing Flags</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/60 font-mono">
@@ -344,15 +348,15 @@ export default function LogsExplorer({
                     className="hover:bg-zinc-800/30 transition-colors font-sans"
                   >
                     {/* Timestamp */}
-                    <td className="px-4 py-3 whitespace-nowrap text-zinc-300 font-mono text-[11px]">
+                    <td className="px-3.5 sm:px-4 py-2.5 sm:py-3 whitespace-nowrap text-zinc-300 font-mono text-[11px]">
                       {new Date(row.timestamp)
                         .toISOString()
                         .replace(".000Z", "Z")}
                     </td>
 
                     {/* Service */}
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
+                    <td className="px-3.5 sm:px-4 py-2.5 sm:py-3 whitespace-nowrap">
+                      <div className="flex items-center space-x-1.5 sm:space-x-2">
                         <span className="font-semibold text-zinc-200 text-xs">
                           {row.service_name}
                         </span>
@@ -363,9 +367,9 @@ export default function LogsExplorer({
                     </td>
 
                     {/* Status Code */}
-                    <td className="px-4 py-3 whitespace-nowrap">
+                    <td className="px-3.5 sm:px-4 py-2.5 sm:py-3 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center space-x-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                        className={`inline-flex items-center space-x-1 rounded-full px-2 sm:px-2.5 py-0.5 text-[11px] font-semibold ${
                           isSuccess
                             ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                             : is999
@@ -383,13 +387,13 @@ export default function LogsExplorer({
                     </td>
 
                     {/* Latency */}
-                    <td className="px-4 py-3 whitespace-nowrap">
+                    <td className="px-3.5 sm:px-4 py-2.5 sm:py-3 whitespace-nowrap">
                       {row.latency_ms !== null ? (
                         <div className="flex items-center space-x-2">
                           <span className="font-mono text-zinc-300 text-xs">
                             {row.latency_ms} ms
                           </span>
-                          <div className="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden hidden sm:block">
+                          <div className="w-12 sm:w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden hidden xs:block">
                             <div
                               className={`h-full rounded-full ${
                                 row.latency_ms > 800
@@ -412,22 +416,22 @@ export default function LogsExplorer({
                     </td>
 
                     {/* Agent / Region */}
-                    <td className="px-4 py-3 whitespace-nowrap text-zinc-400 text-xs">
+                    <td className="px-3.5 sm:px-4 py-2.5 sm:py-3 whitespace-nowrap text-zinc-400 text-xs">
                       <span className="text-zinc-300 font-medium">
                         {row.agent}
                       </span>
-                      <span className="text-zinc-600 mx-1.5">•</span>
+                      <span className="text-zinc-600 mx-1">•</span>
                       <span className="text-zinc-400">{row.region}</span>
                     </td>
 
                     {/* Quality Flags */}
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-1 max-w-xs">
+                    <td className="px-3.5 sm:px-4 py-2.5 sm:py-3">
+                      <div className="flex flex-wrap gap-1 max-w-[200px] sm:max-w-xs">
                         {row.quality_flags && row.quality_flags.length > 0 ? (
                           row.quality_flags.map((flag, fi) => (
                             <span
                               key={fi}
-                              className="inline-flex items-center space-x-1 rounded bg-zinc-800/80 border border-zinc-700/60 px-1.5 py-0.5 text-[10px] font-mono text-cyan-300"
+                              className="inline-flex items-center space-x-1 rounded bg-zinc-800/80 border border-zinc-700/60 px-1.5 py-0.5 text-[10px] font-mono text-cyan-300 whitespace-nowrap"
                             >
                               <Sparkles className="h-2.5 w-2.5 text-cyan-400" />
                               <span>{flag.replace(/_/g, " ")}</span>
@@ -449,8 +453,8 @@ export default function LogsExplorer({
       </div>
 
       {/* Pagination Footer */}
-      <div className="flex flex-col sm:flex-row items-center justify-between border-t border-zinc-800/80 px-5 py-3 text-xs text-zinc-400 gap-3">
-        <div className="flex items-center space-x-3">
+      <div className="flex flex-col sm:flex-row items-center justify-between border-t border-zinc-800/80 px-4 sm:px-5 py-3 text-xs text-zinc-400 gap-3">
+        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 sm:gap-3 w-full sm:w-auto">
           <span>
             Showing{" "}
             <span className="text-zinc-200 font-semibold">
@@ -464,11 +468,11 @@ export default function LogsExplorer({
           </span>
 
           <div className="flex items-center space-x-1.5">
-            <span className="text-zinc-500 text-[11px]">Rows per page:</span>
+            <span className="text-zinc-500 text-[11px]">Rows:</span>
             <select
               value={pageSize}
               onChange={(e) => setPageSize(Number(e.target.value))}
-              className="rounded border border-zinc-700 bg-zinc-950 px-2 py-0.5 text-xs text-zinc-200"
+              className="rounded border border-zinc-700 bg-zinc-950 px-2 py-0.5 text-xs text-zinc-200 focus:outline-none"
             >
               <option value={15}>15</option>
               <option value={25}>25</option>
@@ -479,20 +483,22 @@ export default function LogsExplorer({
         </div>
 
         <div className="flex items-center space-x-2">
-          <span className="text-zinc-400 mr-2">
+          <span className="text-zinc-400 text-xs">
             Page {logsData.page} of {logsData.totalPages || 1}
           </span>
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1 || isLoading}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800/60 text-zinc-300 disabled:opacity-30 hover:bg-zinc-800"
+            aria-label="Previous Page"
+            className="flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800/60 text-zinc-300 disabled:opacity-30 hover:bg-zinc-800 transition"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             onClick={() => setPage((p) => Math.min(logsData.totalPages, p + 1))}
             disabled={page >= logsData.totalPages || isLoading}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800/60 text-zinc-300 disabled:opacity-30 hover:bg-zinc-800"
+            aria-label="Next Page"
+            className="flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800/60 text-zinc-300 disabled:opacity-30 hover:bg-zinc-800 transition"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
